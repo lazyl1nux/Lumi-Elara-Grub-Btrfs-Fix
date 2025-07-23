@@ -1,0 +1,147 @@
+#!/bin/bash
+#
+# install-elara-btrfs-fix.sh
+#
+# This script is part of the LumiOS Project.
+# Copyright (C) 2025 [Stratos Petrakogiannis/lazyl1nux]
+# https://github.com/lazyl1nux/LumiOS-ElaraAI-Btrfs-Fix
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# ElaraAI Btrfs GRUB Fix Installer for Debian/Ubuntu Systems
+set -e
+
+# Define a temporary mount point
+TEMP_MOUNT_POINT="/mnt/elara_btrfs_scan"
+
+# Ensure the temporary mount point exists
+mkdir -p "$TEMP_MOUNT_POINT" 2>/dev/null # Suppress error if already exists
+
+# Trap to ensure unmount on exit, even if script fails
+trap "if mountpoint -q -- '$TEMP_MOUNT_POINT'; then umount '$TEMP_MOUNT_POINT' 2>/dev/null; fi; rmdir '$TEMP_MOUNT_POINT' 2>/dev/null" EXIT
+
+# Start of GRUB menu entries output (main submenu) - goes to stdout
+printf "menuentry 'OneClickLinux Btrfs Detected OSes' --class os --class gnu-linux --class gnu --class ostree {\n"
+printf "    insmod btrfs\n"
+printf "    echo \"Scanning for Btrfs operating systems...\"\n"
+
+# Output a message to stderr for debugging during update-grub run
+echo "Elara is scanning for Btrfs operating systems..." >&2
+
+# Detect Btrfs root partitions (readable, not the current root)
+for part in $(lsblk -rno NAME,TYPE,FSTYPE,MOUNTPOINT | grep btrfs | awk '$4 == "" {print "/dev/"$1}'); do
+    # Skip if the partition is the one currently mounted (i.e., MX Linux's root)
+    current_root_dev=$(findmnt -n -o SOURCE /)
+    if [ "$part" == "$current_root_dev" ]; then
+        echo "Skipping current root partition: $part" >&2
+        continue
+    fi
+
+    echo "Found Btrfs partition: $part" >&2
+
+    # Get the UUID of the partition, crucial for GRUB
+    uuid=$(blkid -s UUID -o value "$part")
+    
+    distro_name="BtrfsOS" # Default fallback name if name detection fails
+    kernel_file_found=""
+    initrd_file_found=""
+    
+    # --- Attempt to get the distribution name and kernel/initrd paths ---
+    if mount -t btrfs -o ro "$part" "$TEMP_MOUNT_POINT" 2>/dev/null; then
+        # This line is the one we want to silence!
+        # echo "Mounted $part to $TEMP_MOUNT_POINT" >&2 # REMOVED THIS LINE
+        
+        # Try to mount the root subvolume, assuming '@'
+        if btrfs subvolume show "$TEMP_MOUNT_POINT/@" &>/dev/null; then
+            umount "$TEMP_MOUNT_POINT" 2>/dev/null
+            if mount -t btrfs -o ro,subvol=@ "$part" "$TEMP_MOUNT_POINT" 2>/dev/null; then
+                echo "Mounted subvol=@ for $part" >/dev/null # SILENCED THIS LINE
+                # Get distro name
+                if [ -f "$TEMP_MOUNT_POINT/etc/os-release" ]; then
+                    detected_name=$(grep "^PRETTY_NAME=" "$TEMP_MOUNT_POINT/etc/os-release" | cut -d'=' -f2- | tr -d '"')
+                    [ -z "$detected_name" ] && detected_name=$(grep "^NAME=" "$TEMP_MOUNT_POINT/etc/os-release" | cut -d'=' -f2- | tr -d '"')
+                    [ -n "$detected_name" ] && distro_name="$detected_name"
+                    # echo "Detected Distro Name: $distro_name" >&2 # REMOVED THIS LINE
+                else
+                    echo "os-release not found in $TEMP_MOUNT_POINT/etc/" >&2
+                fi
+
+                # Dynamically find kernel and initrd images
+                kernel_file_path_on_disk=$(find "$TEMP_MOUNT_POINT/boot" -maxdepth 1 -type f -name 'vmlinuz-*' 2>/dev/null | sort -V | tail -n 1)
+                initrd_file_path_on_disk=$(find "$TEMP_MOUNT_POINT/boot" -maxdepth 1 -type f -name 'initramfs-*.img' -o -name 'initrd.img-*' 2>/dev/null | sort -V | tail -n 1)
+
+                if [ -n "$kernel_file_path_on_disk" ] && [ -n "$initrd_file_path_on_disk" ]; then
+                    kernel_path_for_grub="/@/boot/$(basename "$kernel_file_path_on_disk")"
+                    initrd_path_for_grub="/@/boot/$(basename "$initrd_file_path_on_disk")"
+                    echo "Found Kernel: $kernel_path_for_grub" >&2
+                    echo "Found Initrd: $initrd_path_for_grub" >&2
+                else
+                    echo "Kernel or Initrd not found in $TEMP_MOUNT_POINT/boot/" >&2
+                fi
+            fi
+        else # If no '@' subvolume, try to read os-release directly from root of the Btrfs partition
+            # echo "No '@' subvolume found, trying root of Btrfs partition." >&2 # REMOVED THIS LINE
+            if [ -f "$TEMP_MOUNT_POINT/etc/os-release" ]; then
+                detected_name=$(grep "^PRETTY_NAME=" "$TEMP_MOUNT_POINT/etc/os-release" | cut -d'=' -f2- | tr -d '"')
+                [ -z "$detected_name" ] && detected_name=$(grep "^NAME=" "$TEMP_MOUNT_POINT/etc/os-release" | cut -d'=' -f2- | tr -d '"')
+                [ -n "$detected_name" ] && distro_name="$detected_name"
+                # echo "Detected Distro Name: $distro_name" >&2 # REMOVED THIS LINE
+            fi
+            # Also try to find kernel/initrd if no @ subvolume, assuming they are directly in /boot
+            kernel_file_path_on_disk=$(find "$TEMP_MOUNT_POINT/boot" -maxdepth 1 -type f -name 'vmlinuz-*' 2>/dev/null | sort -V | tail -n 1)
+            initrd_file_path_on_disk=$(find "$TEMP_MOUNT_POINT/boot" -maxdepth 1 -type f -name 'initramfs-*.img' -o -name 'initrd.img-*' 2>/dev/null | sort -V | tail -n 1)
+            if [ -n "$kernel_file_path_on_disk" ] && [ -n "$initrd_file_path_on_disk" ]; then
+                kernel_path_for_grub="/boot/$(basename "$kernel_file_path_on_disk")" # Path without /@/
+                initrd_path_for_grub="/boot/$(basename "$initrd_file_path_on_disk")" # Path without /@/
+                echo "Found Kernel (no @): $kernel_path_for_grub" >&2
+                echo "Found Initrd (no @): $initrd_path_for_grub" >&2
+            fi
+        fi
+        if mountpoint -q -- "$TEMP_MOUNT_POINT"; then
+            umount "$TEMP_MOUNT_POINT" 2>/dev/null
+            # echo "Unmounted $TEMP_MOUNT_POINT" >&2 # REMOVED THIS LINE
+        fi
+    else
+        echo "Failed to mount $part to $TEMP_MOUNT_POINT" >&2 # This line remains visible for critical errors
+    fi
+    # --- End of distribution name detection and path finding ---
+
+    # Define entry_title here, ensuring distro_name is fully evaluated
+    entry_title="OneClickLinux Detected: $distro_name ($part)"
+
+    # Only create menuentry if kernel and initrd paths were successfully found
+    if [ -n "$kernel_path_for_grub" ] && [ -n "$initrd_path_for_grub" ]; then
+        # Output the GRUB menu entry directly to stdout using printf
+        printf "    menuentry \"%s\" {\n" "$entry_title"
+        printf "        insmod btrfs\n"
+        printf "        search --no-floppy --fs-uuid --set=root %s\n" "$uuid"
+        # Use the dynamically found kernel and initrd paths
+        printf "        linux %s root=UUID=%s rootflags=subvol=@ quiet\n" "$kernel_path_for_grub" "$uuid"
+        printf "        initrd %s\n" "$initrd_path_for_grub"
+        printf "    }\n"
+
+        # This line remains visible, as it's desired feedback
+        echo "Adding: $entry_title" >&2
+    else
+        echo "Warning: Could not find working kernel/initrd for $distro_name ($part). Skipping entry." >&2
+        echo "Adding: $distro_name ($part) (Kernel/Initrd Not Found - Skipped)" >&2
+    fi
+
+done
+
+# End of main menuentry block
+printf "}\n"
+
+# Final status message redirected to stderr
+echo "Elara Btrfs OS detection script finished." >&2
