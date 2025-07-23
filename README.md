@@ -93,7 +93,7 @@ After the installer finishes, ElaraAI has touched your GRUB configuration. Now, 
 
 This tool is a result of dedicated effort to make Linux more human. If ElaraAI has saved you time and frustration, please consider supporting the LumiOS Project!
 
-* **[Donation Link Here]** (e.g., Ko-fi, Buy Me a Coffee, GitHub Sponsors)
+* ** https://ko-fi.com/lazyl1nux **
 
 ---
 
