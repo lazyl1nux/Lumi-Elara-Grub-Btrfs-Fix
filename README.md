@@ -1,4 +1,4 @@
-<img width="604" height="597" alt="collage small" src="https://github.com/user-attachments/assets/30001b78-d490-4c88-885e-1bd35e6fb26d" />
+        <img width="604" height="597" alt="collage small" src="https://github.com/user-attachments/assets/30001b78-d490-4c88-885e-1bd35e6fb26d" />
 
 # LumiOS-ElaraAI-Btrfs-Fix
 
