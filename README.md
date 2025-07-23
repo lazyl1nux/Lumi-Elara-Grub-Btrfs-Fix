@@ -1,5 +1,6 @@
 
-# LumiOS-ElaraAI-Btrfs-Fix
+# LumiOS-ElaraAI-Btrfs-Fix<img width="604" height="597" alt="collage small" src="https://github.com/user-attachments/assets/30001b78-d490-4c88-885e-1bd35e6fb26d" />
+
 
 Automatically detects and adds Btrfs Linux installations to your GRUB menu on Debian/Ubuntu systems, powered by ElaraAI.
 
