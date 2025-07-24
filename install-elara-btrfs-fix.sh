@@ -28,11 +28,11 @@ set -e
 PROBER_SCRIPT_NAME="lumi-btrfs-prober"
 PROBER_SOURCE_PATH="./${PROBER_SCRIPT_NAME}" # Assumes prober is in the same directory as installer
 PROBER_INSTALL_PATH="/etc/grub.d/${PROBER_SCRIPT_NAME}"
-LUMIOS_PROJECT_URL="https://github.com/lazyl1nux/LumiOS-ElaraAI-Btrfs-Fix" # Placeholder URL
+LUMIOS_PROJECT_URL="https://github.com/lazyl1nux/LumiOS-ElaraAI-Btrfs-Fix" # Correct GitHub URL
+CREATOR_NAME="[Stratos Petrakogiannis / lazyl1nux]" # Define your name here
 
 # --- Functions for Robust Centered Output and Dividers ---
 # Use a fixed width for simplicity and robustness across terminals
-# This avoids issues with 'tput cols' not being available or behaving differently under sudo/non-interactive shells.
 TERMINAL_WIDTH=80
 
 print_centered() {
@@ -74,17 +74,53 @@ fi
 print_centered "Prober script found."
 echo ""
 
-# --- Check for Btrfs tools ---
+# --- Automated Btrfs Tools Installation ---
+print_section_divider
 print_centered "Checking for essential Btrfs tools..."
-if ! command -v btrfs &> /dev/null || ! command -v lsblk &> /dev/null || ! command -v blkid &> /dev/null; then
-    print_centered "Error: Essential Btrfs or system tools (btrfs-progs, util-linux, blkid) are not found."
-    print_centered "Please ensure Btrfs filesystem utilities are installed on your system."
-    print_centered "For Debian/Ubuntu: sudo apt install btrfs-progs util-linux"
-    echo ""
-    print_section_divider
-    exit 1
+print_section_divider
+echo ""
+
+MISSING_TOOLS=()
+
+# Check for btrfs-progs (provides 'btrfs' command)
+if ! command -v btrfs &> /dev/null; then
+    MISSING_TOOLS+=("btrfs-progs")
 fi
-print_centered "Essential Btrfs tools confirmed."
+
+# Check for util-linux (provides 'lsblk' and 'blkid')
+if ! command -v lsblk &> /dev/null || ! command -v blkid &> /dev/null; then
+    MISSING_TOOLS+=("util-linux")
+fi
+
+if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
+    print_centered "The following essential tools are missing: ${MISSING_TOOLS[*]}"
+    print_centered "These are required for ElaraAI to detect BTRFS systems."
+    echo ""
+    read -p "$(print_centered "Do you want to install them now? (Y/n): ")" CONFIRM_INSTALL
+    echo ""
+
+    if [[ "$CONFIRM_INSTALL" =~ ^[Yy]$ ]]; then
+        print_centered "Updating package lists and installing missing tools..."
+        sudo apt update && sudo apt install -y "${MISSING_TOOLS[@]}"
+        
+        # Verify installation
+        if ! command -v btrfs &> /dev/null || ! command -v lsblk &> /dev/null || ! command -v blkid &> /dev/null; then
+            print_centered "Error: Failed to install all required tools. Please try manually."
+            print_centered "For Debian/Ubuntu: sudo apt install btrfs-progs util-linux"
+            echo ""
+            print_section_divider
+            exit 1
+        fi
+        print_centered "Missing tools installed successfully."
+    else
+        print_centered "Installation aborted. Essential tools are missing."
+        echo ""
+        print_section_divider
+        exit 1
+    fi
+else
+    print_centered "All essential Btrfs tools are already installed."
+fi
 echo ""
 
 # --- Copy lumi-btrfs-prober to /etc/grub.d/ ---
@@ -102,7 +138,7 @@ echo ""
 
 # --- Final Success Message ---
 print_section_divider
-print_centered "ElaraAI landed in your system and successfully touched your GRUB."
+print_centered "ElaraAI, developed by $CREATOR_NAME, landed in your system and successfully touched your GRUB."
 print_centered "Please run 'sudo update-grub', reboot and enjoy your BTRFS installations"
 print_centered "from your Debian/Ubuntu system GRUB menu."
 echo ""
