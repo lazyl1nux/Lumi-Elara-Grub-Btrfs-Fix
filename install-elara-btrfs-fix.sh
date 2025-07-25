@@ -4,7 +4,7 @@
 #
 # This script is part of the LumiOS Project.
 # Copyright (C) 2025 [Stratos Petrakogiannis/lazyl1nux]
-# https://github.com/lazyl1nux/LumiOS-ElaraAI-Btrfs-Fix
+# https://github.com/lazyl1nux/Lumi-Elara-Btrfs-Fix
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ set -e
 PROBER_SCRIPT_NAME="lumi-btrfs-prober"
 PROBER_SOURCE_PATH="./${PROBER_SCRIPT_NAME}" # Assumes prober is in the same directory as installer
 PROBER_INSTALL_PATH="/etc/grub.d/${PROBER_SCRIPT_NAME}"
-LUMIOS_PROJECT_URL="https://github.com/lazyl1nux/LumiOS-ElaraAI-Btrfs-Fix" # Correct GitHub URL
+LUMI_PROJECT_URL="https://github.com/lazyl1nux/Lumi-Elara-Btrfs-Fix" # Correct GitHub URL
 CREATOR_NAME="[Stratos Petrakogiannis / lazyl1nux]" # Define your name here
 
 # --- Functions for Robust Centered Output and Dividers ---
@@ -46,7 +46,7 @@ print_section_divider() {
 
 # --- Installation Start Message ---
 print_section_divider
-print_centered "LumiOS deploys its ElaraAI's smart BTRFS GRUB fix for Debian/Ubuntu systems"
+print_centered "Lumi deploys its Elara's smart BTRFS GRUB fix for Debian/Ubuntu systems"
 print_section_divider
 echo ""
 
@@ -94,7 +94,7 @@ fi
 
 if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
     print_centered "The following essential tools are missing: ${MISSING_TOOLS[*]}"
-    print_centered "These are required for ElaraAI to detect BTRFS systems."
+    print_centered "These are required for Elara to detect BTRFS systems."
     echo ""
     read -p "$(print_centered "Do you want to install them now? (Y/n): ")" CONFIRM_INSTALL
     echo ""
@@ -125,7 +125,7 @@ echo ""
 
 # --- Copy lumi-btrfs-prober to /etc/grub.d/ ---
 print_section_divider
-print_centered "Installing ElaraAI's BTRFS prober script..."
+print_centered "Installing Elara's BTRFS prober script..."
 print_section_divider
 echo ""
 print_centered "Copying '${PROBER_SCRIPT_NAME}' to GRUB directory: ${PROBER_INSTALL_PATH}"
@@ -138,12 +138,12 @@ echo ""
 
 # --- Final Success Message ---
 print_section_divider
-print_centered "ElaraAI, developed by $CREATOR_NAME, landed in your system and successfully touched your GRUB."
+print_centered "Elara, developed by $CREATOR_NAME, landed in your system and successfully touched your GRUB."
 print_centered "Please run 'sudo update-grub', reboot and enjoy your BTRFS installations"
 print_centered "from your Debian/Ubuntu system GRUB menu."
 echo ""
-print_centered "For more information about the LumiOS project and ElaraAI, visit:"
-print_centered "$LUMIOS_PROJECT_URL"
+print_centered "For more information about the Lumi project and Elara, visit:"
+print_centered "$LUMI_PROJECT_URL"
 print_section_divider
 echo ""
 
