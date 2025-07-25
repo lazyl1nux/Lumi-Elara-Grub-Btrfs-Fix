@@ -4,7 +4,7 @@
 #
 # This script is part of the LumiOS Project.
 # Copyright (C) 2025 [Stratos Petrakogiannis/lazyl1nux]
-# https://github.com/lazyl1nux/LumiOS-ElaraAI-Btrfs-Fix
+# https://github.com/lazyl1nux/Lumi-Elara-Btrfs-Fix
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
-# ElaraAI Btrfs GRUB Fix Installer for Debian/Ubuntu Systems
+# Elara Btrfs GRUB Fix Installer for Debian/Ubuntu Systems
 
 set -e
 
@@ -33,12 +33,12 @@ mkdir -p "$TEMP_MOUNT_POINT" 2>/dev/null # Suppress error if already exists
 trap "if mountpoint -q -- '$TEMP_MOUNT_POINT'; then umount '$TEMP_MOUNT_POINT' 2>/dev/null; fi; rmdir '$TEMP_MOUNT_POINT' 2>/dev/null" EXIT
 
 # Start of GRUB menu entries output (main submenu) - goes to stdout
-printf "menuentry 'ElaraAI Btrfs Detected OSes' --class os --class gnu-linux --class gnu --class ostree {\n"
+printf "menuentry 'Elara Btrfs Detected OSes' --class os --class gnu-linux --class gnu --class ostree {\n"
 printf "    insmod btrfs\n"
 printf "    echo \"Scanning for Btrfs operating systems...\"\n"
 
 # Output a message to stderr for debugging during update-grub run
-echo "ElaraAI is scanning for Btrfs operating systems..." >&2
+echo "Elara is scanning for Btrfs operating systems..." >&2
 
 # Detect Btrfs root partitions (readable, not the current root)
 for part in $(lsblk -rno NAME,TYPE,FSTYPE,MOUNTPOINT | grep btrfs | awk '$4 == "" {print "/dev/"$1}'); do
@@ -119,7 +119,7 @@ for part in $(lsblk -rno NAME,TYPE,FSTYPE,MOUNTPOINT | grep btrfs | awk '$4 == "
     # --- End of distribution name detection and path finding ---
 
     # Define entry_title here, ensuring distro_name is fully evaluated
-    entry_title="ElaraAI Detected: $distro_name ($part)"
+    entry_title="Elara Detected: $distro_name ($part)"
 
     # Only create menuentry if kernel and initrd paths were successfully found
     if [ -n "$kernel_path_for_grub" ] && [ -n "$initrd_path_for_grub" ]; then
@@ -145,4 +145,4 @@ done
 printf "}\n"
 
 # Final status message redirected to stderr
-echo "ElaraAI Btrfs OS detection script finished." >&2
+echo "Elara Btrfs OS detection script finished." >&2
