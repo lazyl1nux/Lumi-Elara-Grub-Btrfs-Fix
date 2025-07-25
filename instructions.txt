@@ -2,7 +2,7 @@ LumiOS: ElaraAI Btrfs GRUB Fix - Installation Instructions
 
 Welcome to the LumiOS Project!
 
-This tool, powered by ElaraAI, provides an intelligent fix for Debian/Ubuntu systems
+This tool, powered by Elara, provides an intelligent fix for Debian/Ubuntu systems
 to automatically detect and manage BTRFS (Btrfs) operating systems in your GRUB boot menu.
 
 No more manual configurations or complicated command-line steps!
@@ -43,7 +43,7 @@ and confirm when it's done.
   Finalizing Your GRUB Menu
 ================================================================================
 
-After the installer finishes, ElaraAI has touched your GRUB configuration.
+After the installer finishes, Elara has touched your GRUB configuration.
 Now, you need to tell your system to update its boot menu.
 
 Step 4: Update GRUB
@@ -52,7 +52,7 @@ Type this command in your terminal:
 sudo update-grub
 
 You will see normal system output from 'update-grub'. This process will
-now include your BTRFS installations, detected by ElaraAI.
+now include your BTRFS installations, detected by Elara.
 
 Step 5: Reboot and Enjoy!
 -------------------------
@@ -70,20 +70,20 @@ Manjaro Linux, etc.), perfectly named and ready to boot!
 
 - This fix is designed for Debian/Ubuntu-based systems.
 - If you add or remove BTRFS operating systems in the future, simply run
-  'sudo update-grub' again, and ElaraAI will automatically update your menu.
+  'sudo update-grub' again, and Elara will automatically update your menu.
 - If you encounter any issues, please report them to help us improve!
 
 ================================================================================
-  The LumiOS Project - Making Linux More Human
+  The Lumi Project - Making Linux More Human
 ================================================================================
 ================================================================================
-  The LumiOS Project - Making Linux More Human
+  The Lumi Project - Making Linux More Human
 ================================================================================
 
-This "ElaraAI Btrfs GRUB Fix" was developed by [Stratos Petrakogiannis / lazyl1nux]
+This "Elara Btrfs GRUB Fix" was developed by [Stratos Petrakogiannis / lazyl1nux]
 as part of the LumiOS Project, with assistance from Google's Gemini AI.
 
-For more information about the LumiOS project and ElaraAI, visit:
-https://github.com/lazyl1nux/LumiOS-ElaraAI-Btrfs-Fix
+For more information about the LumiOS project and Elara, visit:
+https://github.com/lazyl1nux/Lumi-Elara-Btrfs-Fix
 
-Thank you for being part of the LumiOS journey!
+Thank you for being part of the Lumi journey!
