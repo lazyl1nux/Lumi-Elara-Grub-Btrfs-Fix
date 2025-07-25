@@ -1,6 +1,6 @@
-LumiOS: ElaraAI Btrfs GRUB Fix - Installation Instructions
+LumiOS: Elara Btrfs GRUB Fix - Installation Instructions
 
-Welcome to the LumiOS Project!
+Welcome to the Lumi Project!
 
 This tool, powered by Elara, provides an intelligent fix for Debian/Ubuntu systems
 to automatically detect and manage BTRFS (Btrfs) operating systems in your GRUB boot menu.
