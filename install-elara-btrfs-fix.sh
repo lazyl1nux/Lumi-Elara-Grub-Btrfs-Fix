@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
-# ElaraAI Btrfs GRUB Fix Installer for Debian/Ubuntu Systems
+# Elara Btrfs GRUB Fix Installer for Debian/Ubuntu Systems
 
 
 set -e
